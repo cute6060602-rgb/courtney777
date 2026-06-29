@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 가위바위보 게임</title>
+    <!-- Tailwind CSS를 불러와 디자인을 적용합니다 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* 웹캠 캔버스 둥근 모서리 처리 */
+        #webcam-container canvas {
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body class="bg-slate-100 min-h-screen text-slate-800 font-sans">
+
+    <div class="max-w-2xl mx-auto py-10 px-4">
+        <!-- 메인 컨테이너 -->
+        <div class="bg-white rounded-3xl shadow-xl overflow-hidden p-6 sm:p-10">
+            
+            <div class="text-center mb-8">
+                <h1 class="text-3xl font-extrabold text-slate-900 mb-2">🤖 AI 가위바위보 게임</h1>
+                <p class="text-slate-500">웹캠을 향해 가위, 바위, 보를 보여주세요!</p>
+            </div>
+
+            <!-- 범례 (캐리커쳐/이모지) -->
+            <div class="flex justify-center gap-8 mb-8 bg-slate-50 p-4 rounded-2xl">
+                <div class="text-center">
+                    <div class="text-5xl mb-2">✌️</div>
+                    <div class="font-bold text-slate-700">가위</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-5xl mb-2">✊</div>
+                    <div class="font-bold text-slate-700">바위</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-5xl mb-2">🖐️</div>
+                    <div class="font-bold text-slate-700">보</div>
+                </div>
+            </div>
+
+            <!-- 컨트롤 버튼 및 웹캠 영역 -->
+            <div class="flex flex-col items-center">
+                <button id="start-btn" type="button" onclick="init()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-8 rounded-full transition duration-300 shadow-md mb-6 w-full max-w-xs text-lg">
+                    게임 시작하기
+                </button>
+
+                <div id="webcam-container" class="relative w-[200px] h-[200px] mb-4 hidden">
+                    <!-- 웹캠 캔버스가 이 곳에 추가됩니다 -->
+                </div>
+
+                <!-- 2초 판별을 위한 진행바 (Progress Bar) -->
+                <div id="progress-container" class="w-full max-w-sm hidden mb-4">
+                    <div class="flex justify-between text-sm font-medium text-slate-600 mb-1">
+                        <span id="current-action-label">인식 대기중...</span>
+                        <span id="progress-time">0s / 2s</span>
+                    </div>
+                    <div class="w-full bg-slate-200 rounded-full h-3">
+                        <div id="progress-bar" class="bg-indigo-500 h-3 rounded-full transition-all duration-75" style="width: 0%"></div>
+                    </div>
+                    <p class="text-xs text-slate-400 mt-2 text-center">동작을 2초 동안 유지하면 확정됩니다.</p>
+                </div>
+            </div>
+
+            <!-- 게임 결과창 -->
+            <div id="result-area" class="mt-8 hidden">
+                <div class="grid grid-cols-3 gap-4 text-center items-center mb-6">
+                    <div class="bg-indigo-50 p-4 rounded-2xl">
+                        <p class="text-sm text-slate-500 mb-1">나의 선택</p>
+                        <p id="player-choice" class="text-3xl font-bold text-indigo-700">-</p>
+                    </div>
+                    <div>
+                        <p id="match-result" class="text-2xl font-black text-slate-800">VS</p>
+                    </div>
+                    <div class="bg-rose-50 p-4 rounded-2xl">
+                        <p class="text-sm text-slate-500 mb-1">컴퓨터</p>
+                        <p id="computer-choice" class="text-3xl font-bold text-rose-700">-</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 통계 영역 -->
+            <div class="border-t border-slate-100 mt-6 pt-6">
+                <h3 class="text-lg font-bold text-slate-800 mb-4 text-center">🏆 게임 전적</h3>
+                <div class="flex justify-center gap-4 sm:gap-8 text-center">
+                    <div>
+                        <p class="text-2xl font-bold text-green-600" id="stat-wins">0</p>
+                        <p class="text-sm text-slate-500">승리</p>
+                    </div>
+                    <div>
+                        <p class="text-2xl font-bold text-slate-600" id="stat-draws">0</p>
+                        <p class="text-sm text-slate-500">무승부</p>
+                    </div>
+                    <div>
+                        <p class="text-2xl font-bold text-red-600" id="stat-losses">0</p>
+                        <p class="text-sm text-slate-500">패배</p>
+                    </div>
+                    <div class="pl-4 sm:pl-8 border-l border-slate-200">
+                        <p class="text-2xl font-bold text-indigo-600" id="stat-winrate">0%</p>
+                        <p class="text-sm text-slate-500">승률</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 디버그용 원본 라벨 (숨김 처리, 필요시 확인용) -->
+            <div id="label-container" class="mt-4 text-xs text-slate-400 text-center opacity-50 hidden"></div>
+
+        </div>
+    </div>
+
+    <!-- 텐서플로우 및 티처블 머신 라이브러리 -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
+    
+    <script type="text/javascript">
+        // 사용자가 제공한 Teachable Machine 모델 URL
+        const URL = "https://teachablemachine.withgoogle.com/models/eVu5z_hKS/";
+
+        let model, webcam, labelContainer, maxPredictions;
+        
+        // 게임 상태 관리 변수
+        let gameState = 'stopped'; // stopped, playing, showing_result
+        let currentCandidate = null;
+        let candidateStartTime = 0;
+        const REQUIRED_HOLD_TIME = 2000; // 2초 유지 필요
+
+        // 전적 변수
+        let wins = 0;
+        let draws = 0;
+        let losses = 0;
+
+        // UI 요소 캐싱
+        const startBtn = document.getElementById("start-btn");
+        const webcamContainer = document.getElementById("webcam-container");
+        const progressContainer = document.getElementById("progress-container");
+        const progressBar = document.getElementById("progress-bar");
+        const currentActionLabel = document.getElementById("current-action-label");
+        const progressTimeLabel = document.getElementById("progress-time");
+        const resultArea = document.getElementById("result-area");
+
+        // 모델 클래스명을 가위/바위/보로 정규화하는 함수
+        // (티처블 머신에서 영어나 다른 이름으로 클래스를 만들었을 경우를 대비함)
+        function normalizeChoice(className) {
+            const name = className.toLowerCase();
+            if (name.includes("가위") || name.includes("scissor") || name.includes("✌️")) return "가위";
+            if (name.includes("바위") || name.includes("rock") || name.includes("주먹") || name.includes("✊")) return "바위";
+            if (name.includes("보") || name.includes("paper") || name.includes("빠") || name.includes("🖐️")) return "보";
+            // 매칭되지 않으면 인식된 이름 그대로 반환
+            return className; 
+        }
+
+        async function init() {
+            if(gameState !== 'stopped') return;
+            
+            startBtn.innerText = "모델 로딩 중...";
+            startBtn.disabled = true;
+
+            const modelURL = URL + "model.json";
+            const metadataURL = URL + "metadata.json";
+
+            try {
+                // 모델 로드
+                model = await tmImage.load(modelURL, metadataURL);
+                maxPredictions = model.getTotalClasses();
+
+                // 웹캠 설정
+                const flip = true; 
+                webcam = new tmImage.Webcam(200, 200, flip); 
+                await webcam.setup(); 
+                await webcam.play();
+                
+                // UI 업데이트
+                startBtn.classList.add("hidden");
+                webcamContainer.classList.remove("hidden");
+                webcamContainer.classList.add("block");
+                progressContainer.classList.remove("hidden");
+                resultArea.classList.remove("hidden");
+                
+                document.getElementById("webcam-container").innerHTML = ""; // 기존 캔버스 제거
+                document.getElementById("webcam-container").appendChild(webcam.canvas);
+                
+                labelContainer = document.getElementById("label-container");
+                labelContainer.innerHTML = "";
+                for (let i = 0; i < maxPredictions; i++) {
+                    labelContainer.appendChild(document.createElement("div"));
+                }
+
+                gameState = 'playing';
+                window.requestAnimationFrame(loop);
+            } catch (error) {
+                alert("웹캠을 켤 수 없거나 모델을 불러오는데 실패했습니다. 권한을 확인해주세요.");
+                startBtn.innerText = "게임 시작하기";
+                startBtn.disabled = false;
+            }
+        }
+
+        async function loop() {
+            webcam.update(); 
+            await predict();
+            window.requestAnimationFrame(loop);
+        }
+
+        async function predict() {
+            const prediction = await model.predict(webcam.canvas);
+            
+            // 디버그용 원본 텍스트 표시
+            for (let i = 0; i < maxPredictions; i++) {
+                labelContainer.childNodes[i].innerHTML = prediction[i].className + ": " + prediction[i].probability.toFixed(2);
+            }
+
+            // 결과 화면을 보여주는 중이면 판별 로직을 잠시 멈춤
+            if (gameState !== 'playing') return;
+
+            let bestClass = null;
+            let bestProb = 0;
+
+            // 가장 확률이 높은 클래스 찾기
+            for (let i = 0; i < maxPredictions; i++) {
+                if (prediction[i].probability > bestProb) {
+                    bestProb = prediction[i].probability;
+                    bestClass = prediction[i].className;
+                }
+            }
+
+            // 확률이 50% 이상인지 확인
+            if (bestProb >= 0.5 && bestClass) {
+                const normalizedChoice = normalizeChoice(bestClass);
+                
+                // 아직 알려지지 않은 클래스(가위/바위/보로 매핑 안된 경우)는 제외
+                if(normalizedChoice === "가위" || normalizedChoice === "바위" || normalizedChoice === "보") {
+                    
+                    if (currentCandidate === normalizedChoice) {
+                        // 같은 동작을 계속 유지 중
+                        const elapsed = Date.now() - candidateStartTime;
+                        const progressPercent = Math.min((elapsed / REQUIRED_HOLD_TIME) * 100, 100);
+                        
+                        progressBar.style.width = `${progressPercent}%`;
+                        progressTimeLabel.innerText = `${(elapsed/1000).toFixed(1)}s / 2.0s`;
+                        currentActionLabel.innerText = `${normalizedChoice} 인식 중!`;
+                        currentActionLabel.className = "text-indigo-600 font-bold";
+
+                        if (elapsed >= REQUIRED_HOLD_TIME) {
+                            // 2초 도달! 동작 확정
+                            executeGameAction(normalizedChoice);
+                        }
+                    } else {
+                        // 새로운 동작 인식 시작
+                        currentCandidate = normalizedChoice;
+                        candidateStartTime = Date.now();
+                        progressBar.style.width = "0%";
+                        progressTimeLabel.innerText = "0.0s / 2.0s";
+                    }
+                } else {
+                    resetProgress();
+                }
+            } else {
+                // 50%를 넘는 동작이 없음
+                resetProgress();
+            }
+        }
+
+        function resetProgress() {
+            currentCandidate = null;
+            progressBar.style.width = "0%";
+            progressTimeLabel.innerText = "0.0s / 2.0s";
+            currentActionLabel.innerText = "손 모양을 보여주세요";
+            currentActionLabel.className = "text-slate-500";
+        }
+
+        function getEmoji(choice) {
+            if(choice === '가위') return '✌️';
+            if(choice === '바위') return '✊';
+            if(choice === '보') return '🖐️';
+            return '';
+        }
+
+        function executeGameAction(playerChoice) {
+            gameState = 'showing_result'; // 판별 일시정지
+            
+            const choices = ['가위', '바위', '보'];
+            const computerChoice = choices[Math.floor(Math.random() * 3)];
+            
+            // 승패 판정
+            let resultText = '';
+            let resultColor = '';
+
+            if (playerChoice === computerChoice) {
+                resultText = '무승부!';
+                resultColor = 'text-slate-600';
+                draws++;
+            } else if (
+                (playerChoice === '가위' && computerChoice === '보') ||
+                (playerChoice === '바위' && computerChoice === '가위') ||
+                (playerChoice === '보' && computerChoice === '바위')
+            ) {
+                resultText = '🎉 나의 승리!';
+                resultColor = 'text-green-600';
+                wins++;
+            } else {
+                resultText = '😢 컴퓨터 승리';
+                resultColor = 'text-red-600';
+                losses++;
+            }
+
+            // 결과 화면 업데이트
+            document.getElementById("player-choice").innerText = getEmoji(playerChoice);
+            document.getElementById("computer-choice").innerText = getEmoji(computerChoice);
+            
+            const matchResultEl = document.getElementById("match-result");
+            matchResultEl.innerText = resultText;
+            matchResultEl.className = `text-2xl font-black ${resultColor}`;
+
+            updateStats();
+
+            // 프로그레스 바 상태를 '결과 표시 중'으로 변경
+            progressBar.style.width = "100%";
+            progressBar.classList.replace("bg-indigo-500", "bg-green-500");
+            currentActionLabel.innerText = "결과 확정!";
+            progressTimeLabel.innerText = "3초 후 재시작";
+
+            // 3초 후 다음 게임 준비
+            let countdown = 3;
+            const countdownInterval = setInterval(() => {
+                countdown--;
+                if(countdown > 0) {
+                    progressTimeLabel.innerText = `${countdown}초 후 재시작`;
+                }
+            }, 1000);
+
+            setTimeout(() => {
+                clearInterval(countdownInterval);
+                resetGameForNextRound();
+            }, 3000);
+        }
+
+        function updateStats() {
+            const totalGames = wins + draws + losses;
+            const winRate = totalGames === 0 ? 0 : Math.round((wins / totalGames) * 100);
+
+            document.getElementById("stat-wins").innerText = wins;
+            document.getElementById("stat-draws").innerText = draws;
+            document.getElementById("stat-losses").innerText = losses;
+            document.getElementById("stat-winrate").innerText = winRate + "%";
+        }
+
+        function resetGameForNextRound() {
+            resetProgress();
+            progressBar.classList.replace("bg-green-500", "bg-indigo-500");
+            
+            document.getElementById("player-choice").innerText = "-";
+            document.getElementById("computer-choice").innerText = "-";
+            
+            const matchResultEl = document.getElementById("match-result");
+            matchResultEl.innerText = "VS";
+            matchResultEl.className = "text-2xl font-black text-slate-800";
+
+            gameState = 'playing'; // 다시 웹캠 판별 시작
+        }
+    </script>
+</body>
+</html>
