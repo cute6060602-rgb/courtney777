@@ -1,8 +1,288 @@
-<html>
-  <head>
-    <tytle>main page</tytle>
-    <body>
-      <h2>This is the main page.</h2>
-    </body>
-  </head>
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>김가경, 나는 누구?</title>
+    <style>
+        /* 폰트 불러오기 (구글 웹폰트 Noto Sans KR) */
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap');
+
+        /* 전역 스타일 설정 */
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f7f5; /* 부드러운 미색 배경 */
+        }
+
+        /* 링크 스타일 초기화 및 포인트 컬러 적용 */
+        a {
+            text-decoration: none;
+            color: #e07a5f; /* 톤 다운된 코랄 핑크 */
+            transition: color 0.3s ease;
+        }
+        a:hover {
+            color: #d06045;
+        }
+
+        /* 헤더 스타일 */
+        header {
+            background-color: #e07a5f;
+            color: white;
+            padding: 2rem 1rem;
+            text-align: center;
+        }
+        header h1 {
+            margin: 0;
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+        header p {
+            margin-top: 1rem;
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        /* 구분선 스타일 변경 (보이지 않게 처리하거나 스타일 적용) */
+        hr {
+            border: none;
+            height: 1px;
+            background-color: #eee;
+            margin: 0;
+        }
+
+        /* 메인 콘텐츠 컨테이너 */
+        main {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+        }
+
+        /* 네비게이션 스타일 */
+        nav {
+            background-color: #fff;
+            padding: 1rem 0;
+            text-align: center;
+            border-bottom: 1px solid #eee;
+        }
+        nav h2 {
+            display: none; /* 목차 제목 숨김 */
+        }
+        nav ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+        nav ul li a {
+            font-weight: 700;
+            color: #555;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+        }
+        nav ul li a:hover {
+            background-color: #f0e6e4;
+            color: #e07a5f;
+        }
+
+        /* 섹션 공통 스타일 */
+        section {
+            margin-bottom: 3rem;
+        }
+        section h2 {
+            color: #e07a5f;
+            border-bottom: 2px solid #f0e6e4;
+            padding-bottom: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+        article h3 {
+            color: #444;
+            margin-bottom: 0.8rem;
+        }
+
+        /* 기본 정보 (Profile) 섹션 특화 */
+        #profile figure {
+            margin: 0 0 1.5rem 0;
+            text-align: center;
+        }
+        #profile figure img {
+            max-width: 100%;
+            width: 300px; /* 적절한 크기 고정 */
+            height: auto;
+            border-radius: 15px; /* 둥근 모서리 */
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            border: 5px solid #fff; /* 흰색 테두리 액자 효과 */
+        }
+        #profile figcaption {
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+            color: #777;
+        }
+        #profile ul {
+            list-style: none;
+            padding: 0;
+        }
+        #profile ul li {
+            margin-bottom: 0.8rem;
+            padding-left: 1rem;
+            border-left: 4px solid #e07a5f; /* 왼쪽에 포인트 선 */
+        }
+        #profile ul li strong {
+            color: #555;
+            margin-right: 0.5rem;
+        }
+
+        /* 나의 인생, 지원 동기 섹션 스타일 */
+        #life article, #motivation article {
+            background-color: #fdf8f7;
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin-bottom: 1.5rem;
+        }
+        #life ul {
+            padding-left: 1.2rem;
+        }
+        #life ul li {
+            margin-bottom: 0.5rem;
+        }
+        
+        /* 푸터 스타일 */
+        footer {
+            text-align: center;
+            padding: 3rem 1rem;
+            background-color: #3d3d3d;
+            color: #ccc;
+            margin-top: 2rem;
+        }
+        footer h2 {
+            color: white;
+            font-size: 1.2rem;
+        }
+        footer address {
+            font-style: normal;
+            margin: 1rem 0;
+        }
+        footer address a {
+            color: #e07a5f;
+        }
+
+        /* 모바일 반응형 조정 */
+        @media (max-width: 600px) {
+            header h1 { font-size: 2rem; }
+            nav ul { flex-direction: column; gap: 0.5rem; }
+            main { margin: 1rem; padding: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>나는 행복한 사람입니다.</h1>
+        <p>호기심 많고, 열정 많고, 욕심 많은 김가경(Courtney)의 자기소개 페이지입니다.</p>
+    </header>
+
+    <!-- CSS 스타일 적용을 위해 상단 hr은 스타일에서 숨김 처리했습니다. -->
+    <hr>
+
+    <nav>
+        <h2>목차</h2>
+        <ul>
+            <li><a href="#profile">기본 정보</a></li>
+            <li><a href="#life">나의 인생</a></li>
+            <li><a href="#motivation">지원 동기 및 목표</a></li>
+        </ul>
+    </nav>
+
+    <!-- 네비게이션 하단 구분선 -->
+    <div style="height: 1px; background-color: #eee; max-width: 800px; margin: auto;"></div>
+
+    <main>
+        
+        <section id="profile">
+            <h2>1. 기본 정보 (Profile)</h2>
+            <img src="./../html-introduction/증명사진.jpg" alt="" srcset="">
+            <!-- 사진이 들어갈 자리입니다. 이미지 경로를 확인해주세요. -->
+
+            <ul>
+                <li><strong>이름:</strong> 김가경</li>
+                <li><strong>별명:</strong> Courtney 코트니</li>
+                <li><strong>특징:</strong> 호기심 많고, 열정 많고, 욕심 많고, 뭐든지 다 잘하고 싶고, 먹는 것을 너무너무 좋아하고, 요리를 사랑하고, 노래하는 것을 즐기는 뚱팡이</li>
+            </ul>
+        </section>
+
+        <section id="life">
+            <h2>2. 나의 인생 (My Life)</h2>
+            
+            <article>
+                <h3>경력 및 자격</h3>
+                <ul>
+                    <li>공군장교 20년</li>
+                    <li>중국어/영어 번역가 22년</li>
+                    <li>브런치 작가, 웹소설 작가 (등단 후 휴재 중)</li>
+                    <li>행정사, 외국어번역행정사(중국어/영어) 자격증 보유 (활동 안함)</li>
+                    <li>한식/양식/중식 조리기능사 보유 (내년쯤 유튜버 데뷔 목적), 2026년 일식 취득 예정</li>
+                </ul>
+            </article>
+            <figure>
+                <img src="./../html-introduction/영어대회.jpg" alt="33살 시절, 영어 스피치 대회 1등 수상 후 찍은 사진">
+                <figcaption>나의 사진 : 33살 시절, 영어 스피치 대회 1등 수상 후 찍은 사진</figcaption>
+            </figure>
+
+            <article>
+                <h3>학력 및 학업</h3>
+                <ul>
+                    <li>정치학/중어중문학 학사, 산업공학 석사</li>
+                    <li>다시 학생 모드로 전환: 한국학중앙연구원 한국학대학원 인문지리학과 석사 장학생 선발 입학 대기 중</li>
+                </ul>
+                <hr>
+                <img src="./../html-introduction/결국 마음먹은 대로 된다..jpg" alt="" srcset="">
+            </article>
+
+            <article>
+                <h3>거주 및 이동 (역마살)</h3>
+                <ul>
+                    <li><strong>한국 (출생 및 군 생활):</strong> 서울, 안양, 평택, 충주, 광주, 원주, 김해, 강릉, 서산, 사천 거주</li>
+                    <li><strong>중국 (유학 및 주재원 생활):</strong> 북경, 상해, 대련, 동관, 홍콩</li>
+                    <li><strong>미국 (해외 기업 실무연수):</strong> 메릴랜드</li>
+                </ul>
+            </article>
+        </section>
+
+        <section id="motivation">
+            <h2>3. 과정 지원 동기 및 기대하는 바</h2>
+            
+            <article>
+                <h3>과정 지원 동기</h3>
+                <p>AI는 Chat GPT가 전부인 줄만 알고 살았다가, 폴리텍대학 정수 캠퍼스에서 AI 웹 작가 과정/영상콘텐츠 제작과정 수업을 듣고, 그 다음 단계인 코딩이 배우고 싶어졌습니다.<br>(그것이 단계별로 AI를 마스터하는 과정이라 어디서 주워 듣고...)</p>
+            </article>
+
+            <article>
+                <h3>기대하는 바</h3>
+                <p>본 과정을 마치고 난 후, 나의 삶 전반에 걸쳐 내가 이루고자 하는 바를 이루는 데 AI가 날개를 달았으면 좋겠습니다.</p>
+            </article>
+        </section>
+
+    </main>
+
+    <!-- 하단 hr도 스타일상 숨김 처리됩니다. -->
+    <hr>
+
+    <footer>
+        <h2>연락처 (Contact)</h2>
+        <address>
+            <p>네이버 블로그: <a href="https://blog.naver.com/cute6060602" target="_blank">https://blog.naver.com/cute6060602</a></p>
+        </address>
+        <p><small>&copy; 2026 김가경. All rights reserved.</small></p>
+    </footer>
+
+</body>
 </html>
